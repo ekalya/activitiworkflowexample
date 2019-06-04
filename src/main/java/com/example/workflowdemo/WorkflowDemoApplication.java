@@ -1,14 +1,23 @@
 package com.example.workflowdemo;
 
+import org.activiti.spring.SpringProcessEngineConfiguration;
+import org.springframework.beans.factory.InitializingBean;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration;
 import org.springframework.context.annotation.Bean;
+import org.springframework.security.core.userdetails.UserDetailsService;
 
 @SpringBootApplication(exclude = {SecurityAutoConfiguration.class})
 public class WorkflowDemoApplication {
+    
+    @Autowired
+    UserDetailsService userDetailsService;
 
+    @Autowired
+    private SpringProcessEngineConfiguration processEngineConfiguration;
 
     public static void main(String[] args) {
         SpringApplication.run(WorkflowDemoApplication.class, args);
@@ -21,6 +30,26 @@ public class WorkflowDemoApplication {
 
             public void run(String... strings) throws Exception {
 
+            }
+        };
+    }
+    
+    
+
+    @Bean
+    InitializingBean processEngineInitializer() {
+        return new InitializingBean() {
+            public void afterPropertiesSet() throws Exception {
+                
+                processEngineConfiguration.setUserGroupManager(new ActivitiUserGroupManager(userDetailsService));
+                
+//                processEngineConfiguration.setUserEntityManager(
+//                        new SpringSecurityUserManager(processEngineConfiguration,
+//                                new MybatisUserDataManager(processEngineConfiguration), userManager));
+//                
+//                processEngineConfiguration.setGroupEntityManager(
+//                        new SpringSecurityGroupManager(processEngineConfiguration,
+//                                new MybatisGroupDataManager(processEngineConfiguration)));
             }
         };
     }

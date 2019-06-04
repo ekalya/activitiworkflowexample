@@ -47,12 +47,25 @@ public class InitialDataLoader implements
         GrantedAuthorityImpl writePrivilege
                 = createPrivilegeIfNotFound("WRITE_PRIVILEGE");
 
+
+        GrantedAuthorityImpl activitiUserPrivilege2
+                = createPrivilegeIfNotFound("ROLE_ACTIVITI_USER");
+
+        GrantedAuthorityImpl activitiUserPrivilege3
+                = createPrivilegeIfNotFound("ROLE_ACTIVITI_ADMIN");
+
+
+        List<GrantedAuthorityImpl> activityPrivileges = Arrays.asList(
+                readPrivilege, writePrivilege, activitiUserPrivilege2, activitiUserPrivilege3);
+
         List<GrantedAuthorityImpl> adminPrivileges = Arrays.asList(
                 readPrivilege, writePrivilege);
+
         createRoleIfNotFound("ADMIN", adminPrivileges);
         createRoleIfNotFound("USER", Arrays.asList(readPrivilege));
+        createRoleIfNotFound("ACTIVITI_USER", activityPrivileges);
 
-        UserRole adminRole = roleRepository.findByName("ADMIN");
+        UserRole adminRole = roleRepository.findByName("ACTIVITI_USER");
         UserDetailsImpl user = new UserDetailsImpl();
         user.setUsername("admin");
         user.setPassword(passwordencoder().encode("test"));

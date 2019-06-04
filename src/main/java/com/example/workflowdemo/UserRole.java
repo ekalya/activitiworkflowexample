@@ -5,6 +5,7 @@
  */
 package com.example.workflowdemo;
 
+import java.io.Serializable;
 import java.util.Collection;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -22,7 +23,7 @@ import javax.persistence.Table;
  */
 @Entity
 @Table(name = "user_roles")
-public class UserRole {
+public class UserRole implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -47,8 +48,6 @@ public class UserRole {
     public UserRole(String name) {
         this.name = name;
     }
-    
-    
 
     public Long getId() {
         return id;
