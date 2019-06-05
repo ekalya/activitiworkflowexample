@@ -9,6 +9,7 @@ package com.example.workflowdemo;
  *
  * @author exk
  */
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -20,16 +21,19 @@ import org.activiti.api.process.model.ProcessInstance;
 import org.activiti.api.process.runtime.ProcessRuntime;
 import org.activiti.api.runtime.shared.query.Page;
 import org.activiti.api.runtime.shared.query.Pageable;
+import org.activiti.engine.RuntimeService;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import static org.springframework.http.HttpStatus.OK;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -48,6 +52,13 @@ public class EventMonitorController {
     private ProcessRuntime processRuntime;
 
     private Map<Integer, String> severities;
+    
+    @Autowired
+    private RuntimeService runtimeService;
+    
+    
+    @Autowired
+    private ApplicantRepository applicantRepository;
 
     public EventMonitorController() {
         severities = new TreeMap<>();
@@ -120,7 +131,7 @@ public class EventMonitorController {
 
     @RequestMapping(value = "/completeTask", params = {"save"}, method = RequestMethod.POST)
     @RolesAllowed({"ROLE_ACTIVITI_USER", "ROLE_ACTIVITI_ADMIN"})
-    public ResponseEntity<EventDto>  completeTask(@Valid EventDto eventDto, BindingResult bindingResult, Model model) {
+    public ResponseEntity<EventDto> completeTask(@Valid EventDto eventDto, BindingResult bindingResult, Model model) {
         if (bindingResult.hasErrors()) {
             LOG.error("ERRORS: " + bindingResult.getErrorCount());
             bindingResult.getAllErrors().forEach(error -> LOG.error("   " + error.toString()));
@@ -134,5 +145,16 @@ public class EventMonitorController {
     @ModelAttribute("severities")
     public Map<Integer, String> getPriorities() {
         return severities;
+    }
+
+    @RequestMapping(value = "/start-hire-process", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
+    public void startHireProcess(@RequestBody Map<String, String> data) {
+
+        Applicant applicant = new Applicant(data.get("name"), data.get("email"), data.get("phoneNumber"));
+        applicantRepository.save(applicant);
+
+        Map<String, Object> variables = new HashMap<String, Object>();
+        variables.put("applicant", applicant);
+        runtimeService.startProcessInstanceByKey("hireProcessWithJpa", variables);
     }
 }
