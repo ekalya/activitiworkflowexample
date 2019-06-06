@@ -22,7 +22,7 @@ public class WorkflowDemoApplication {
     public static void main(String[] args) {
         SpringApplication.run(WorkflowDemoApplication.class, args);
     }
-
+    
     @Bean
     CommandLineRunner init() {
 

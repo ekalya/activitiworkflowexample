@@ -52,11 +52,10 @@ public class EventMonitorController {
     private ProcessRuntime processRuntime;
 
     private Map<Integer, String> severities;
-    
+
     @Autowired
     private RuntimeService runtimeService;
-    
-    
+
     @Autowired
     private ApplicantRepository applicantRepository;
 
@@ -105,6 +104,10 @@ public class EventMonitorController {
         List<ProcessInstanceDto> instanceDtos = processInstances.stream().map(instance -> new ProcessInstanceDto(instance.getId(), instance.getName(), instance.getDescription(), instance.getStartDate(), instance.getInitiator(), instance.getBusinessKey(), instance.getStatus().toString(), instance.getProcessDefinitionId(), instance.getProcessDefinitionKey(), processRuntime.processInstanceMeta(instance.getId()).getActiveActivitiesIds())).collect(Collectors.toList());
         model.addAttribute("instances", instanceDtos);
 
+        instanceDtos.stream().forEach(instance -> {
+            System.out.println("Instance: Initiator:" + instance.getInitiator());
+            System.out.println("Instance: Start Date:" + instance.getStartDate());
+        });
         return new ResponseEntity<>(instanceDtos, OK);
     }
 

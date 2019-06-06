@@ -67,11 +67,18 @@ public class InitialDataLoader implements
 
         UserRole adminRole = roleRepository.findByName("ACTIVITI_USER");
         UserDetailsImpl user = new UserDetailsImpl();
-        user.setUsername("admin");
-        user.setPassword(passwordencoder().encode("test"));
+        user.setUsername("elisha");
+        user.setPassword(passwordencoder().encode("elisha123"));
         user.setUserRoles(Arrays.asList(adminRole));
         user.setEnabled(true);
         userRepository.save(user);
+        
+        UserDetailsImpl user2 = new UserDetailsImpl();
+        user2.setUsername("peris");
+        user2.setPassword(passwordencoder().encode("peris123"));
+        user2.setUserRoles(Arrays.asList(adminRole));
+        user2.setEnabled(true);
+        userRepository.save(user2);
 
         alreadySetup = true;
     }

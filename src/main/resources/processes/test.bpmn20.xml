@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:activiti="http://activiti.org/bpmn" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:omgdc="http://www.omg.org/spec/DD/20100524/DC" xmlns:omgdi="http://www.omg.org/spec/DD/20100524/DI" typeLanguage="http://www.w3.org/2001/XMLSchema" expressionLanguage="http://www.w3.org/1999/XPath" targetNamespace="http://alfresco.org">
+  <process id="customactivitiReview" name="customactivitiReview" isExecutable="true">
+    <startEvent id="start" activiti:formKey="wf:submitReviewTask"></startEvent>
+    <sequenceFlow id="flow1" sourceRef="start" targetRef="reviewTask"></sequenceFlow>
+    <userTask id="reviewTask" name="Review Task" activiti:assignee="${bpm_assignee.properties.userName}" activiti:formKey="wf:activitiReviewTask">
+      <extensionElements>
+        <activiti:taskListener event="create" class="org.alfresco.repo.workflow.activiti.tasklistener.ScriptTaskListener">
+          <activiti:field name="script">
+            <activiti:string><![CDATA[if (typeof bpm_workflowDueDate != 'undefined') task.dueDate = bpm_workflowDueDate
+                if (typeof bpm_workflowPriority != 'undefined') task.priority = bpm_workflowPriority;]]></activiti:string>
+          </activiti:field>
+        </activiti:taskListener>
+        <activiti:taskListener event="complete" class="org.alfresco.repo.workflow.activiti.tasklistener.ScriptTaskListener">
+          <activiti:field name="script">
+            <activiti:string><![CDATA[execution.setVariable('wf_reviewOutcome', task.getVariable('wf_reviewOutcome'));]]></activiti:string>
+          </activiti:field>
+        </activiti:taskListener>
+      </extensionElements>
+    </userTask>
+    <sequenceFlow id="flow2" sourceRef="reviewTask" targetRef="reviewDecision"></sequenceFlow>
+    <exclusiveGateway id="reviewDecision" name="Review Decision"></exclusiveGateway>
+    <sequenceFlow id="flow3" sourceRef="reviewDecision" targetRef="approved">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${wf_reviewOutcome == 'Approve'}]]></conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="flow4" sourceRef="reviewDecision" targetRef="rejected"></sequenceFlow>
+    <userTask id="approved" name="Clerk Approved" activiti:assignee="${bpm_assignee.properties.userName}" activiti:formKey="wf:approvedTask">
+      <documentation>The document was reviewed and approved.</documentation>
+      <extensionElements>
+        <activiti:taskListener event="create" class="org.alfresco.repo.workflow.activiti.tasklistener.ScriptTaskListener">
+          <activiti:field name="script">
+            <activiti:string><![CDATA[if (typeof bpm_workflowDueDate != 'undefined') task.dueDate = bpm_workflowDueDate
+                if (typeof bpm_workflowPriority != 'undefined') task.priority = bpm_workflowPriority;]]></activiti:string>
+          </activiti:field>
+        </activiti:taskListener>
+      </extensionElements>
+    </userTask>
+    <userTask id="rejected" name="Clerk Rejected" activiti:assignee="${initiator.exists() ? initiator.properties.userName : 'admin'}" activiti:formKey="wf:rejectedTask">
+      <documentation>The document was reviewed and rejected.</documentation>
+      <extensionElements>
+        <activiti:taskListener event="create" class="org.alfresco.repo.workflow.activiti.tasklistener.ScriptTaskListener">
+          <activiti:field name="script">
+            <activiti:string><![CDATA[if (typeof bpm_workflowDueDate != 'undefined') task.dueDate = bpm_workflowDueDate
+                if (typeof bpm_workflowPriority != 'undefined') task.priority = bpm_workflowPriority;]]></activiti:string>
+          </activiti:field>
+        </activiti:taskListener>
+      </extensionElements>
+    </userTask>
+    <sequenceFlow id="flow5" sourceRef="rejected" targetRef="end"></sequenceFlow>
+    <endEvent id="end"></endEvent>
+    <userTask id="approverapproved" name="Approver Approved" activiti:assignee="${initiator.exists() ? initiator.properties.userName : 'admin'}" activiti:formKey="wf:approvedTask">
+      <documentation>The document was reviewed and approved.</documentation>
+      <extensionElements>
+        <activiti:taskListener event="create" class="org.alfresco.repo.workflow.activiti.tasklistener.ScriptTaskListener">
+          <activiti:field name="script">
+            <activiti:string><![CDATA[if (typeof bpm_workflowDueDate != 'undefined') task.dueDate = bpm_workflowDueDate
+                if (typeof bpm_workflowPriority != 'undefined') task.priority = bpm_workflowPriority;]]></activiti:string>
+          </activiti:field>
+        </activiti:taskListener>
+      </extensionElements>
+    </userTask>
+    <userTask id="approverrejected" name="Approver Rejected" activiti:assignee="${initiator.exists() ? initiator.properties.userName : 'admin'}" activiti:formKey="wf:rejectedTask">
+      <documentation>The document was reviewed and rejected.</documentation>
+      <extensionElements>
+        <activiti:taskListener event="create" class="org.alfresco.repo.workflow.activiti.tasklistener.ScriptTaskListener">
+          <activiti:field name="script">
+            <activiti:string><![CDATA[if (typeof bpm_workflowDueDate != 'undefined') task.dueDate = bpm_workflowDueDate
+                if (typeof bpm_workflowPriority != 'undefined') task.priority = bpm_workflowPriority;]]></activiti:string>
+          </activiti:field>
+        </activiti:taskListener>
+      </extensionElements>
+    </userTask>
+    <sequenceFlow id="flow10" sourceRef="approverapproved" targetRef="end"></sequenceFlow>
+    <sequenceFlow id="flow9" sourceRef="approverrejected" targetRef="end"></sequenceFlow>
+    <exclusiveGateway id="exclusivegateway1" name="Exclusive Gateway"></exclusiveGateway>
+    <sequenceFlow id="flow6" sourceRef="approved" targetRef="exclusivegateway1"></sequenceFlow>
+    <sequenceFlow id="flow8" sourceRef="exclusivegateway1" targetRef="approverrejected"></sequenceFlow>
+    <sequenceFlow id="flow7" sourceRef="exclusivegateway1" targetRef="approverapproved"></sequenceFlow>
+  </process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_customactivitiReview">
+    <bpmndi:BPMNPlane bpmnElement="activitiAPReview" id="BPMNPlane_customactivitiReview">
+      <bpmndi:BPMNShape bpmnElement="start" id="BPMNShape_start">
+        <omgdc:Bounds height="35.0" width="35.0" x="30.0" y="200.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="reviewTask" id="BPMNShape_reviewTask">
+        <omgdc:Bounds height="55.0" width="105.0" x="125.0" y="190.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="reviewDecision" id="BPMNShape_reviewDecision">
+        <omgdc:Bounds height="40.0" width="40.0" x="290.0" y="197.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="approved" id="BPMNShape_approved">
+        <omgdc:Bounds height="55.0" width="105.0" x="390.0" y="97.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="rejected" id="BPMNShape_rejected">
+        <omgdc:Bounds height="55.0" width="105.0" x="390.0" y="297.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="end" id="BPMNShape_end">
+        <omgdc:Bounds height="35.0" width="35.0" x="720.0" y="307.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="approverapproved" id="BPMNShape_approverapproved">
+        <omgdc:Bounds height="55.0" width="105.0" x="555.0" y="30.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="approverrejected" id="BPMNShape_approverrejected">
+        <omgdc:Bounds height="55.0" width="105.0" x="555.0" y="162.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="exclusivegateway1" id="BPMNShape_exclusivegateway1">
+        <omgdc:Bounds height="40.0" width="40.0" x="587.0" y="104.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge bpmnElement="flow1" id="BPMNEdge_flow1">
+        <omgdi:waypoint x="65.0" y="217.0"></omgdi:waypoint>
+        <omgdi:waypoint x="125.0" y="217.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow2" id="BPMNEdge_flow2">
+        <omgdi:waypoint x="230.0" y="217.0"></omgdi:waypoint>
+        <omgdi:waypoint x="290.0" y="217.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow3" id="BPMNEdge_flow3">
+        <omgdi:waypoint x="310.0" y="197.0"></omgdi:waypoint>
+        <omgdi:waypoint x="310.0" y="124.0"></omgdi:waypoint>
+        <omgdi:waypoint x="390.0" y="124.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow4" id="BPMNEdge_flow4">
+        <omgdi:waypoint x="310.0" y="237.0"></omgdi:waypoint>
+        <omgdi:waypoint x="310.0" y="324.0"></omgdi:waypoint>
+        <omgdi:waypoint x="390.0" y="324.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow5" id="BPMNEdge_flow5">
+        <omgdi:waypoint x="495.0" y="324.0"></omgdi:waypoint>
+        <omgdi:waypoint x="720.0" y="324.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow10" id="BPMNEdge_flow10">
+        <omgdi:waypoint x="660.0" y="57.0"></omgdi:waypoint>
+        <omgdi:waypoint x="737.0" y="57.0"></omgdi:waypoint>
+        <omgdi:waypoint x="737.0" y="307.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow9" id="BPMNEdge_flow9">
+        <omgdi:waypoint x="607.0" y="217.0"></omgdi:waypoint>
+        <omgdi:waypoint x="737.0" y="307.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow6" id="BPMNEdge_flow6">
+        <omgdi:waypoint x="495.0" y="124.0"></omgdi:waypoint>
+        <omgdi:waypoint x="587.0" y="124.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow8" id="BPMNEdge_flow8">
+        <omgdi:waypoint x="607.0" y="144.0"></omgdi:waypoint>
+        <omgdi:waypoint x="607.0" y="162.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow7" id="BPMNEdge_flow7">
+        <omgdi:waypoint x="607.0" y="104.0"></omgdi:waypoint>
+        <omgdi:waypoint x="607.0" y="85.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</definitions>
