@@ -13,8 +13,9 @@
     </startEvent>
     <endEvent id="e-endEvent" name="endEvent">
       <incoming>SequenceFlow_0kjnj64</incoming>
-      <incoming>SequenceFlow_092z60l</incoming>
+      <incoming>SequenceFlow_1poep2i</incoming>
     </endEvent>
+
     <exclusiveGateway id="ExclusiveGateway_0oge5k6" name="eg-approvedOrRejectedCheck">
       <incoming>SequenceFlow_00wg3bh</incoming>
       <outgoing>SequenceFlow_1ue97va</outgoing>
@@ -37,7 +38,7 @@
       <outgoing>SequenceFlow_00wg3bh</outgoing>
     </userTask>
     <userTask id="Task_0he7t90" name="ut-modifyOrReject" activiti:assignee="${owner}">
-      <documentation>${employeeName} would like to take ${numberOfDays} day(s)
+     <documentation>${employeeName} would like to take ${numberOfDays} day(s)
       of vacation (Motivation: ${reason}).</documentation>
       <extensionElements>
         <activiti:formProperty id="vacationModified" name="Do you modify&#10;          this vacation request?" type="enum" required="true" />
@@ -49,28 +50,23 @@
     <sequenceFlow id="SequenceFlow_0o6vhfv" name="sf-e-startEvent-ut-approveOrReject" sourceRef="e-startEvent" targetRef="Task_0vtxjhv" />
     <sequenceFlow id="SequenceFlow_00wg3bh" name="sf-ut-approveOrReject-eg-approvedOrRejectedCheck" sourceRef="Task_0vtxjhv" targetRef="ExclusiveGateway_0oge5k6" />
     <sequenceFlow id="SequenceFlow_1ue97va" name="sf-eg-approvedOrRejectedCheck-ut-modifyOrReject" sourceRef="ExclusiveGateway_0oge5k6" targetRef="Task_0he7t90">
-      <conditionExpression xsi:type="tFormalExpression">${vacationApproved == 'false'}</conditionExpression>
+    <conditionExpression xsi:type="tFormalExpression">${vacationApproved == 'false'}</conditionExpression>
     </sequenceFlow>
     <sequenceFlow id="SequenceFlow_1xytxkf" name="sf-eg-approvedOrRejectedCheck-st-sendEmail" sourceRef="ExclusiveGateway_0oge5k6" targetRef="Task_1mt5670">
-      <conditionExpression xsi:type="tFormalExpression">${vacationApproved == 'true'}</conditionExpression>
+    <conditionExpression xsi:type="tFormalExpression">${vacationApproved == 'true'}</conditionExpression>
     </sequenceFlow>
     <sequenceFlow id="SequenceFlow_0a1te3b" name="sf-ut-modifyOrReject-eg-modifiedOrRejectedCheck" sourceRef="Task_0he7t90" targetRef="ExclusiveGateway_13f906w" />
     <sequenceFlow id="SequenceFlow_0kjnj64" name="eg-modifiedOrRejectedCheck-e-endEvent" sourceRef="ExclusiveGateway_13f906w" targetRef="e-endEvent">
-      <conditionExpression xsi:type="tFormalExpression">${vacationModified == 'false'}</conditionExpression>
+    <conditionExpression xsi:type="tFormalExpression">${vacationModified == 'false'}</conditionExpression>
     </sequenceFlow>
     <sequenceFlow id="SequenceFlow_0rq96ie" name="sf-egmodifiedOrRejectedCheck-ut-approveOrReject" sourceRef="ExclusiveGateway_13f906w" targetRef="Task_0vtxjhv">
-      <conditionExpression xsi:type="tFormalExpression">${vacationModified == 'true'}</conditionExpression>
+    <conditionExpression xsi:type="tFormalExpression">${vacationModified == 'true'}</conditionExpression>
     </sequenceFlow>
-    <sequenceFlow id="SequenceFlow_1poep2i" name="sf-st-sendEmail-e-endEvent" sourceRef="Task_1mt5670" targetRef="Task_0nec0ri" />
+    <sequenceFlow id="SequenceFlow_1poep2i" name="sf-st-sendEmail-e-endEvent" sourceRef="Task_1mt5670" targetRef="e-endEvent" />
     <serviceTask id="Task_1mt5670" name="st-sendEmail" activiti:expression="${vacationEmailService.sendNotificationEmail()}">
       <incoming>SequenceFlow_1xytxkf</incoming>
       <outgoing>SequenceFlow_1poep2i</outgoing>
     </serviceTask>
-    <serviceTask id="Task_0nec0ri" activiti:class="com.example.workflowdemo.TestServiceExecution">
-      <incoming>SequenceFlow_1poep2i</incoming>
-      <outgoing>SequenceFlow_092z60l</outgoing>
-    </serviceTask>
-    <sequenceFlow id="SequenceFlow_092z60l" sourceRef="Task_0nec0ri" targetRef="e-endEvent" />
   </process>
   <bpmndi:BPMNDiagram id="BPMNDiagram_vacationRequest">
     <bpmndi:BPMNPlane id="BPMNPlane_vacationRequest" bpmnElement="vacation-request">
@@ -158,24 +154,17 @@
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="SequenceFlow_1poep2i_di" bpmnElement="SequenceFlow_1poep2i">
-        <omgdi:waypoint x="932" y="167" />
-        <omgdi:waypoint x="1052" y="257" />
+        <omgdi:waypoint x="884" y="171" />
+        <omgdi:waypoint x="884" y="253" />
+        <omgdi:waypoint x="918" y="253" />
+        <omgdi:waypoint x="918" y="334" />
         <bpmndi:BPMNLabel>
-          <omgdc:Bounds x="941" y="193" width="80" height="27" />
+          <omgdc:Bounds x="861" y="235" width="80" height="27" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNShape id="ServiceTask_13docr6_di" bpmnElement="Task_1mt5670">
         <omgdc:Bounds x="834" y="91" width="100" height="80" />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="ServiceTask_15c7btd_di" bpmnElement="Task_0nec0ri">
-        <omgdc:Bounds x="1054" y="230" width="100" height="80" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNEdge id="SequenceFlow_092z60l_di" bpmnElement="SequenceFlow_092z60l">
-        <omgdi:waypoint x="1054" y="270" />
-        <omgdi:waypoint x="996" y="270" />
-        <omgdi:waypoint x="996" y="354" />
-        <omgdi:waypoint x="938" y="354" />
-      </bpmndi:BPMNEdge>
     </bpmndi:BPMNPlane>
   </bpmndi:BPMNDiagram>
 </definitions>

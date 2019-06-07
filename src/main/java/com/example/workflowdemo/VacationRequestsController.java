@@ -66,8 +66,12 @@ public class VacationRequestsController {
         System.out.println("Owner:" + task.getOwner());
         // Completing the phone interview with success should trigger two new tasks
         Map<String, Object> taskVariables = new HashMap<String, Object>();
-        taskVariables.put("vacationApproved", false);
-        taskService.complete(task.getId(), taskVariables);
+//        taskVariables.put("vacationApproved", false);
+//        taskService.complete(task.getId(), taskVariables);
+        System.out.println("task execution id:" + task.getExecutionId());
+        System.out.println("task id:" + task.getId());
+        taskService.setVariableLocal(task.getId(), "vacationApproved", false);
+        taskService.complete(task.getId());
         System.out.println("return:" + task.getId());
         return new ResponseEntity<>(task, OK);
     }
@@ -86,8 +90,10 @@ public class VacationRequestsController {
 
         // Completing the phone interview with success should trigger two new tasks
         Map<String, Object> taskVariables = new HashMap<String, Object>();
-        taskVariables.put("vacationApproved", true);
-        taskService.complete(task.getId(), taskVariables);
+        //taskVariables.put("vacationApproved", true);
+        //taskService.complete(task.getId(), taskVariables);
+        taskService.setVariableLocal(task.getId(), "vacationApproved", true);
+        taskService.complete(task.getId());
         System.out.println("return:" + task.getId());
         return new ResponseEntity<>(task, OK);
     }
@@ -107,8 +113,11 @@ public class VacationRequestsController {
         // Completing the phone interview with success should trigger two new tasks
         Map<String, Object> taskVariables = new HashMap<String, Object>();
         taskVariables.put("vacationModified", true);
-        taskVariables.put("numberOfDays", 10);
-        taskService.complete(task.getId(), taskVariables);
+//        taskVariables.put("numberOfDays", 10);
+//        taskService.complete(task.getId(), taskVariables);
+        taskService.setVariable(task.getId(), "numberOfDays", 10);
+        taskService.setVariableLocal(task.getId(), "vacationModified", true);
+        taskService.complete(task.getId());
         System.out.println("return:" + task.getId());
         return new ResponseEntity<>(task, OK);
     }
@@ -127,8 +136,10 @@ public class VacationRequestsController {
 
         // Completing the phone interview with success should trigger two new tasks
         Map<String, Object> taskVariables = new HashMap<String, Object>();
-        taskVariables.put("vacationModified", false);
-        taskService.complete(task.getId(), taskVariables);
+//        taskVariables.put("vacationModified", false);
+//        taskService.complete(task.getId(), taskVariables);
+        taskService.setVariableLocal(task.getId(), "vacationModified", false);
+        taskService.complete(task.getId());
         System.out.println("return:" + task.getId());
         return new ResponseEntity<>(task, OK);
     }
